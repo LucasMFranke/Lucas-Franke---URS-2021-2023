@@ -50,10 +50,12 @@ for i in 1:length(a)
     end
 end
 
-averages = [mean(cl1), mean(cl2), mean(cl3), mean(cl4), mean(cl5), mean(cl6), mean(cl7), mean(cl8), mean(cl9), mean(cl10), mean(cl11), mean(cl12)];
+means = [mean(cl1), mean(cl2), mean(cl3), mean(cl4), mean(cl5), mean(cl6), mean(cl7), mean(cl8), mean(cl9), mean(cl10), mean(cl11), mean(cl12)];
 stddevs = [std(cl1), std(cl2), std(cl3), std(cl4), std(cl5), std(cl6), std(cl7), std(cl8), std(cl9), std(cl10), std(cl11), std(cl12)];
-println("Averages: ", averages);
+medians = [median(cl1), median(cl2), median(cl3), median(cl4), median(cl5), median(cl6), median(cl7), median(cl8), median(cl9), median(cl10), median(cl11), median(cl12)];
+println("Means: ", means);
 println("Standard Deviations: ", stddevs);
+println("Medians: ", medians);
 c = counts(cluster);
 M = cluster.centers;
 k=[1,2,3,4,5,6,7,8,9,10,11,12]
