@@ -4,8 +4,6 @@ data = CSV.read("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Pr
 data1=Matrix(data);
 df1 = DataFrame(data1, :auto);
 CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\20210101_20211231_New_Only_Needed.csv", df1);
-#writedlm(stdout, data1);
-#alg = KmppAlg;
 seed = initseeds(:kmpp, data1, 12)
 cluster = kmeans(data1, 12, maxiter=500, display=:final);\
 @assert nclusters(cluster) == 12;
@@ -58,14 +56,20 @@ println("Standard Deviations: ", stddevs);
 println("Medians: ", medians);
 c = counts(cluster);
 M = cluster.centers;
-k=[1,2,3,4,5,6,7,8,9,10,11,12]
-println(c)
+k=[1:12]
+println("Counts: ", c)
 size(M)
-bar(k, 
-c,
-label = "Counts/Cluster",
-title = "Clusters",
-xticks =:all,
-xrotation = 45,
-size = [600, 400],
-legend =:topleft)
+
+indices = [1:length(a)]
+average_risks = [];
+for i in 1:length(a)
+    col = data1[:,i];
+    av = mean(col);
+    push!(average_risks, av)
+end
+
+p1 = bar(k, c, label = "Counts/Cluster", title = "Clusters", xticks =:all, xrotation = 45, legend =:topleft);
+
+p2 = scatter(indices, average_risks, ylabel = "Average Risk", xlabel  = "Data index", title = "Risk vs Date - Color coded via cluster", marker_z=a, color=:lightrainbow);
+
+plot(p1,p2, layout = (2,1), size = [800, 800])
