@@ -60,16 +60,59 @@ k=[1:12]
 println("Counts: ", c)
 size(M)
 
-indices = [1:length(a)]
-average_risks = [];
+average_risks1 = [];
+average_risks2 = [];
+average_risks3 = [];
+average_risks4 = [];
+average_risks5 = [];
+average_risks6 = [];
+average_risks7 = [];
+average_risks8 = [];
+average_risks9 = [];
+average_risks10 = [];
+average_risks11 = [];
+average_risks12 = [];
 for i in 1:length(a)
     col = data1[:,i];
     av = mean(col);
-    push!(average_risks, av)
+    if (a[i] == 1)
+        push!(average_risks1, av)
+    elseif (a[i] == 2)
+        push!(average_risks2, av)
+    elseif (a[i] == 3)
+        push!(average_risks3, av)
+    elseif (a[i] == 4)
+        push!(average_risks4, av)
+    elseif (a[i] == 5)
+        push!(average_risks5, av)
+    elseif (a[i] == 6)
+        push!(average_risks6, av)
+    elseif (a[i] == 7)
+        push!(average_risks7, av)
+    elseif (a[i] == 8)
+        push!(average_risks8, av)
+    elseif (a[i] == 9)
+        push!(average_risks9, av)
+    elseif (a[i] == 10)
+        push!(average_risks10, av)
+    elseif (a[i] == 11)
+        push!(average_risks11, av)
+    elseif (a[i] == 12)
+        push!(average_risks12, av)
+    end
 end
 
-p1 = bar(k, c, label = "Counts/Cluster", title = "Clusters", xticks =:all, xrotation = 45, legend =:topleft);
+#p1 = bar(k, c, label = "Counts/Cluster", title = "Clusters", xticks =:all, xrotation = 45, legend =:outertopleft);
 
-p2 = scatter(indices, average_risks, ylabel = "Average Risk", xlabel  = "Data index", title = "Risk vs Date - Color coded via cluster", marker_z=a, color=:lightrainbow);
-
-plot(p1,p2, layout = (2,1), size = [800, 800])
+scatter(cl1, average_risks1,  ylabel = "Average Risk", xlabel  = "Data index", label = "Cluster 1", legend =:outertopleft, size = [1000, 600], color=:red)
+scatter!(cl2, average_risks2, label = "Cluster 2", color=:blue)
+scatter!(cl3, average_risks3, label = "Cluster 3", color=:yellow)
+scatter!(cl4, average_risks4, label = "Cluster 4", color=:green)
+scatter!(cl5, average_risks5, label = "Cluster 5", color=:orange)
+scatter!(cl6, average_risks6, label = "Cluster 6", color=:purple)
+scatter!(cl7, average_risks7, label = "Cluster 7", color=:pink)
+scatter!(cl8, average_risks8, label = "Cluster 8", color=:lightgreen)
+scatter!(cl9, average_risks9, label = "Cluster 9", color=:black)
+scatter!(cl10, average_risks10, label = "Cluster 10", color=:violet)
+scatter!(cl11, average_risks11, label = "Cluster 11", color=:gray)
+scatter!(cl12, average_risks12, label = "Cluster 12", color=:lightblue)
