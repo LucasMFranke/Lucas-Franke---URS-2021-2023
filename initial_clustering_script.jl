@@ -5,7 +5,7 @@ data1=Matrix(data);
 df1 = DataFrame(data1, :auto);
 CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\20210101_20211231_New_Only_Needed.csv", df1);
 seed = initseeds(:kmpp, data1, 12)
-cluster = kmeans(data1, 12, maxiter=500, display=:final);\
+cluster = kmeans(data1, 12, maxiter=500, display=:final);
 @assert nclusters(cluster) == 12;
 a = assignments(cluster);
 cl1 = [];
