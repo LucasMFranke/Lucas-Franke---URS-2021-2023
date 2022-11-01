@@ -1,6 +1,7 @@
 using CSV, Clustering, DataFrames, DelimitedFiles, Plots, Tables, Statistics
 
 data = CSV.read("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\20210101_20211231_Only_Needed.csv", DataFrame);
+data_with_extra_columns = CSV.read("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\20210101_20211231.csv", DataFrame);
 data1 = Matrix(data);
 df1 = DataFrame(data1, :auto);
 CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\20210101_20211231_New_Only_Needed.csv", df1);
@@ -15,7 +16,7 @@ seed = initseeds(:kmpp, data1, 12)
     cl3 = [];
     cl4 = [];
     cl5 = [];
-    cl6 = [];``
+    cl6 = [];
     cl7 = [];
     cl8 = [];
     cl9 = [];
@@ -50,70 +51,102 @@ seed = initseeds(:kmpp, data1, 12)
         end
     end
 
-    means = [mean(cl1), mean(cl2), mean(cl3), mean(cl4), mean(cl5), mean(cl6), mean(cl7), mean(cl8), mean(cl9), mean(cl10), mean(cl11), mean(cl12)];
-    stddevs = [std(cl1), std(cl2), std(cl3), std(cl4), std(cl5), std(cl6), std(cl7), std(cl8), std(cl9), std(cl10), std(cl11), std(cl12)];
-    medians = [median(cl1), median(cl2), median(cl3), median(cl4), median(cl5), median(cl6), median(cl7), median(cl8), median(cl9), median(cl10), median(cl11), median(cl12)];
+    mean_dates = [mean(cl1), mean(cl2), mean(cl3), mean(cl4), mean(cl5), mean(cl6), mean(cl7), mean(cl8), mean(cl9), mean(cl10), mean(cl11), mean(cl12)];
+    date_stddevs = [std(cl1), std(cl2), std(cl3), std(cl4), std(cl5), std(cl6), std(cl7), std(cl8), std(cl9), std(cl10), std(cl11), std(cl12)];
+    median_dates = [median(cl1), median(cl2), median(cl3), median(cl4), median(cl5), median(cl6), median(cl7), median(cl8), median(cl9), median(cl10), median(cl11), median(cl12)];
+    
     # ranges = [range(cl1), range(cl2), range(cl3), range(cl4), range(cl5), range(cl6), range(cl7), range(cl8), range(cl9), range(cl10), range(cl11), range(cl12)];
-    # println("Means: ", means);
-    # println("Standard Deviations: ", stddevs);
-    # println("Medians: ", medians);
+    # println("mean_dates: ", mean_dates);
+    # println("Standard Deviations: ", date_stddevs);
+    # println("median_dates: ", median_dates);
     c = counts(cluster);
     M = cluster.centers;
     k = [1:12]
     # println("Counts: ", c)
     # print(M)
     stats_df = DataFrame()
-    stats_df.MeanDates = means;
-    stats_df.DateStdDevs = stddevs;
+    stats_df.MeanDates = mean_dates;
+    stats_df.Date_stddevs = date_stddevs;
     stats_df.Counts = c;
 
     centers_df = DataFrame(M, :auto);
+    column_names = []
+    
+    for n in 1:12
+        push!(column_names, "wfpi_cluster"*string(n))
+    end
+
+    mean_risks = []
+    risk_stddevs = []
+    for l in 1:12
+        colm = centers_df[:, l]
+        temp_mean = mean(colm)
+        temp_stddev = std(colm)
+        push!(mean_risks, temp_mean)
+        push!(risk_stddevs, temp_stddev)
+    end
+
+    stats_df.MeanRisks = mean_risks;
+    stats_df.Risk_stddevs = risk_stddevs;
+
+    rename!(centers_df, Symbol.(column_names))
+    for k in [:UID, :From_Bus, :To_Bus, :Tr_Ratio, :Length]
+        col = data_with_extra_columns[!, k]
+        centers_df[!, k] = col
+    end
+
+    arr = data_with_extra_columns[!, :OID_]
+    insertcols!(centers_df, 1, :OID_ => arr)
+
     mkpath("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j));
     CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\centers" * string(j) * ".csv", centers_df);
     CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\stats" * string(j) * ".csv", stats_df);
+    p1 = bar(mean_dates, mean_risks, label = "Mean Risk", title = "Mean Risk vs Mean Date", xticks =:all, xrotation = 45, legend =:outertopleft);
+    savefig("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\dates_vs_risk"*string(j)*".png");
+
 end
 
-average_risks1 = [];
-average_risks2 = [];
-average_risks3 = [];
-average_risks4 = [];
-average_risks5 = [];
-average_risks6 = [];
-average_risks7 = [];
-average_risks8 = [];
-average_risks9 = [];
-average_risks10 = [];
-average_risks11 = [];
-average_risks12 = [];
-for i in 1:length(a)
-    col = data1[:, i]
-    av = mean(col)
-    if (a[i] == 1)
-        push!(average_risks1, av)
-    elseif (a[i] == 2)
-        push!(average_risks2, av)
-    elseif (a[i] == 3)
-        push!(average_risks3, av)
-    elseif (a[i] == 4)
-        push!(average_risks4, av)
-    elseif (a[i] == 5)
-        push!(average_risks5, av)
-    elseif (a[i] == 6)
-        push!(average_risks6, av)
-    elseif (a[i] == 7)
-        push!(average_risks7, av)
-    elseif (a[i] == 8)
-        push!(average_risks8, av)
-    elseif (a[i] == 9)
-        push!(average_risks9, av)
-    elseif (a[i] == 10)
-        push!(average_risks10, av)
-    elseif (a[i] == 11)
-        push!(average_risks11, av)
-    elseif (a[i] == 12)
-        push!(average_risks12, av)
-    end
-end
+# average_risks1 = [];
+# average_risks2 = [];
+# average_risks3 = [];
+# average_risks4 = [];
+# average_risks5 = [];
+# average_risks6 = [];
+# average_risks7 = [];
+# average_risks8 = [];
+# average_risks9 = [];
+# average_risks10 = [];
+# average_risks11 = [];
+# average_risks12 = [];
+# for i in 1:length(a)
+#     col = data1[:, i]
+#     av = mean(col)
+#     if (a[i] == 1)
+#         push!(average_risks1, av)
+#     elseif (a[i] == 2)
+#         push!(average_risks2, av)
+#     elseif (a[i] == 3)
+#         push!(average_risks3, av)
+#     elseif (a[i] == 4)
+#         push!(average_risks4, av)
+#     elseif (a[i] == 5)
+#         push!(average_risks5, av)
+#     elseif (a[i] == 6)
+#         push!(average_risks6, av)
+#     elseif (a[i] == 7)
+#         push!(average_risks7, av)
+#     elseif (a[i] == 8)
+#         push!(average_risks8, av)
+#     elseif (a[i] == 9)
+#         push!(average_risks9, av)
+#     elseif (a[i] == 10)
+#         push!(average_risks10, av)
+#     elseif (a[i] == 11)
+#         push!(average_risks11, av)
+#     elseif (a[i] == 12)
+#         push!(average_risks12, av)
+#     end
+# end
 
 
 #p1 = bar(k, c, label = "Counts/Cluster", title = "Clusters", xticks =:all, xrotation = 45, legend =:outertopleft);
