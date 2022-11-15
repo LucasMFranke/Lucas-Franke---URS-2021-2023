@@ -8,9 +8,11 @@ CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Ri
 seed = initseeds(:kmpp, data1, 12)
 
 @time for j in 0:29
-    cluster = kmeans(data1, 12, maxiter=500, display=:final);
+    b = 12;
+    cluster = kmeans(data1, b, maxiter=500, display=:final);
     @assert nclusters(cluster) == 12;
     a = assignments(cluster);
+    cl_arr_of_arrs = [];
     cl1 = [];
     cl2 = [];
     cl3 = [];
@@ -23,50 +25,37 @@ seed = initseeds(:kmpp, data1, 12)
     cl10 = [];
     cl11 = [];
     cl12 = [];
-    for i in 1:length(a)
-        if (a[i] == 1)
-            push!(cl1, i)
-        elseif (a[i] == 2)
-            push!(cl2, i)
-        elseif (a[i] == 3)
-            push!(cl3, i)
-        elseif (a[i] == 4)
-            push!(cl4, i)
-        elseif (a[i] == 5)
-            push!(cl5, i)
-        elseif (a[i] == 6)
-            push!(cl6, i)
-        elseif (a[i] == 7)
-            push!(cl7, i)
-        elseif (a[i] == 8)
-            push!(cl8, i)
-        elseif (a[i] == 9)
-            push!(cl9, i)
-        elseif (a[i] == 10)
-            push!(cl10, i)
-        elseif (a[i] == 11)
-            push!(cl11, i)
-        elseif (a[i] == 12)
-            push!(cl12, i)
-        end
+    for z in 1:b
+        temp_arr = [];
+        push!(cl_arr_of_arrs, temp_arr)
     end
 
-    mean_dates = [mean(cl1), mean(cl2), mean(cl3), mean(cl4), mean(cl5), mean(cl6), mean(cl7), mean(cl8), mean(cl9), mean(cl10), mean(cl11), mean(cl12)];
-    date_stddevs = [std(cl1), std(cl2), std(cl3), std(cl4), std(cl5), std(cl6), std(cl7), std(cl8), std(cl9), std(cl10), std(cl11), std(cl12)];
-    median_dates = [median(cl1), median(cl2), median(cl3), median(cl4), median(cl5), median(cl6), median(cl7), median(cl8), median(cl9), median(cl10), median(cl11), median(cl12)];
-    
-    # ranges = [range(cl1), range(cl2), range(cl3), range(cl4), range(cl5), range(cl6), range(cl7), range(cl8), range(cl9), range(cl10), range(cl11), range(cl12)];
-    # println("mean_dates: ", mean_dates);
-    # println("Standard Deviations: ", date_stddevs);
-    # println("median_dates: ", median_dates);
+    for p in 1:length(a)
+        for ind in 1:b
+            if (a[p]==ind)
+                push!(cl_arr_of_arrs[ind], p)
+            end
+        end
+    end
+    mean_dates_opt = [];
+    date_stds_opt = []
+    median_dates_opt = [];
+    for u in 1:b
+        temp_mean = mean(cl_arr_of_arrs[u])
+        temp_std_dev = std(cl_arr_of_arrs[u])
+        temp_med = median(cl_arr_of_arrs[u])
+        push!(mean_dates_opt, temp_mean)
+        push!(median_dates_opt, temp_med)
+        push!(date_stds_opt, temp_std_dev)
+    end
+
     c = counts(cluster);
     M = cluster.centers;
     k = [1:12]
-    # println("Counts: ", c)
-    # print(M)
     stats_df = DataFrame()
-    stats_df.MeanDates = mean_dates;
-    stats_df.Date_stddevs = date_stddevs;
+    stats_df.MeanDates = mean_dates_opt;
+    stats_df.Date_stddevs = date_stds_opt;
+    stats_df.MedianDates = median_dates_opt
     stats_df.Counts = c;
 
     centers_df = DataFrame(M, :auto);
@@ -78,7 +67,7 @@ seed = initseeds(:kmpp, data1, 12)
 
     mean_risks = []
     risk_stddevs = []
-    for l in 1:12
+    for l in 1:b
         colm = centers_df[:, l]
         temp_mean = mean(colm)
         temp_stddev = std(colm)
@@ -90,9 +79,9 @@ seed = initseeds(:kmpp, data1, 12)
     stats_df.Risk_stddevs = risk_stddevs;
 
     rename!(centers_df, Symbol.(column_names))
-    for k in [:UID, :From_Bus, :To_Bus, :Tr_Ratio, :Length]
-        col = data_with_extra_columns[!, k]
-        centers_df[!, k] = col
+    for f in [:UID, :From_Bus, :To_Bus, :Tr_Ratio, :Length]
+        col = data_with_extra_columns[!, f]
+        centers_df[!, f] = col
     end
 
     arr = data_with_extra_columns[!, :OID_]
@@ -101,7 +90,7 @@ seed = initseeds(:kmpp, data1, 12)
     mkpath("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j));
     CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\centers" * string(j) * ".csv", centers_df);
     CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\stats" * string(j) * ".csv", stats_df);
-    p1 = bar(mean_dates, mean_risks, label = "Mean Risk", title = "Mean Risk vs Mean Date", xticks =:all, xrotation = 45, legend =:outertopleft);
+    p1 = bar(mean_dates_opt, mean_risks, label = "Mean Risk", title = "Mean Risk vs Mean Date", xticks =:all, xrotation = 45, legend =:outertopleft);
     savefig("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\dates_vs_risk"*string(j)*".png");
 
 end
