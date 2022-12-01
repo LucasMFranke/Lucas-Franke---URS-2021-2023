@@ -7,24 +7,13 @@ df1 = DataFrame(data1, :auto);
 CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\20210101_20211231_New_Only_Needed.csv", df1);
 seed = initseeds(:kmpp, data1, 12)
 
-@time for j in 0:29
-    b = 12;
+@time for j in 1:365
+    b = j;
     cluster = kmeans(data1, b, maxiter=500, display=:final);
-    @assert nclusters(cluster) == 12;
+    #@assert nclusters(cluster) == 12;
     a = assignments(cluster);
     cl_arr_of_arrs = [];
-    cl1 = [];
-    cl2 = [];
-    cl3 = [];
-    cl4 = [];
-    cl5 = [];
-    cl6 = [];
-    cl7 = [];
-    cl8 = [];
-    cl9 = [];
-    cl10 = [];
-    cl11 = [];
-    cl12 = [];
+
     for z in 1:b
         temp_arr = [];
         push!(cl_arr_of_arrs, temp_arr)
@@ -51,7 +40,7 @@ seed = initseeds(:kmpp, data1, 12)
 
     c = counts(cluster);
     M = cluster.centers;
-    k = [1:12]
+    k = [1:b]
     stats_df = DataFrame()
     stats_df.MeanDates = mean_dates_opt;
     stats_df.Date_stddevs = date_stds_opt;
@@ -61,7 +50,7 @@ seed = initseeds(:kmpp, data1, 12)
     centers_df = DataFrame(M, :auto);
     column_names = []
     
-    for n in 1:12
+    for n in 1:b
         push!(column_names, "wfpi_cluster"*string(n))
     end
 
@@ -90,9 +79,8 @@ seed = initseeds(:kmpp, data1, 12)
     mkpath("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j));
     CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\centers" * string(j) * ".csv", centers_df);
     CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\stats" * string(j) * ".csv", stats_df);
-    p1 = bar(mean_dates_opt, mean_risks, label = "Mean Risk", title = "Mean Risk vs Mean Date", xticks =:all, xrotation = 45, legend =:outertopleft);
+    p1 = scatter(mean_dates_opt, mean_risks, label = "Mean Risk", title = "Mean Risk vs Mean Date", xticks =:all, xrotation = 45, legend =:outertopleft);
     savefig("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\dates_vs_risk"*string(j)*".png");
-
 end
 
 # average_risks1 = [];

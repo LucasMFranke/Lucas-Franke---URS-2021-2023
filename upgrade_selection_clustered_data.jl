@@ -21,7 +21,7 @@ using LinearAlgebra, Statistics, StatsBase
 
 print_upgraded_lines = true
 
-for j in 0:29
+for j in 1:365
     upgrades_df = DataFrame();
     ##############################################################################################################
     # Load and Configure Data
@@ -152,8 +152,8 @@ for j in 0:29
         end
     end
     upgrades_df[!,:"Upgrades"] = upgrades;
-    mkpath("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Upgrade Selection\\Cluster" * string(j));
-    CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Upgrade Selection\\Cluster" * string(j) * "\\Upgrades"*string(j)*".csv", upgrades_df);
+    # mkpath("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j));
+    CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\Upgrades"*string(j)*".csv", upgrades_df);
 end
 
 ##############################################################################################################
