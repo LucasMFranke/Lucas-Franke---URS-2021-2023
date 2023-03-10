@@ -1,4 +1,4 @@
-using CSV, Clustering, DataFrames, DelimitedFiles, Plots, Tables, Statistics
+using CSV, Clustering, DataFrames, DelimitedFiles, Plots, Tables, Statistics, Distances
 
 data = CSV.read("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\20210101_20211231_Only_Needed.csv", DataFrame);
 data_with_extra_columns = CSV.read("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\20210101_20211231.csv", DataFrame);
@@ -8,79 +8,50 @@ CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Ri
 
 @time for j in 1:365
     b = j;
-    cluster = kmeans(data1, b, maxiter=500, display=:final);
-    #@assert nclusters(cluster) == 12;
+    squareMatrix = pairwise(Euclidean(), data1);
+    cluster = kmedoids(squareMatrix, b, maxiter=500, display=:final);
     a = assignments(cluster);
     cl_arr_of_arrs = [];
-
-    for z in 1:b
-        temp_arr = [];
-        push!(cl_arr_of_arrs, temp_arr)
-    end
-
-    for p in 1:length(a)
-        for ind in 1:b
-            if (a[p]==ind)
-                push!(cl_arr_of_arrs[ind], p)
-            end
-        end
-    end
-    mean_dates_opt = [];
-    date_stds_opt = []
-    median_dates_opt = [];
-    for u in 1:b
-        temp_mean = mean(cl_arr_of_arrs[u])
-        temp_std_dev = std(cl_arr_of_arrs[u])
-        temp_med = median(cl_arr_of_arrs[u])
-        push!(mean_dates_opt, temp_mean)
-        push!(median_dates_opt, temp_med)
-        push!(date_stds_opt, temp_std_dev)
-    end
+    medoidsDF = DataFrame()
 
     c = counts(cluster);
-    M = cluster.centers;
+    M = cluster.medoids;
     k = [1:b]
-    stats_df = DataFrame()
-    stats_df.MeanDates = mean_dates_opt;
-    stats_df.Date_stddevs = date_stds_opt;
-    stats_df.MedianDates = median_dates_opt
-    stats_df.Counts = c;
-
-    centers_df = DataFrame(M, :auto);
-    column_names = []
+    # println(M)
     
+    # println(data1[:, M[1]])
+
+    for z in 1:b
+        colName = string(z)
+        medoidsDF[!, colName] = data1[:, M[z]]
+        # println(z)
+    end
+
+    column_names = []
+
     for n in 1:b
-        push!(column_names, "wfpi_cluster"*string(n))
+        push!(column_names, "wfpi_day"*string(M[n]))
     end
 
-    mean_risks = []
-    risk_stddevs = []
-    for l in 1:b
-        colm = centers_df[:, l]
-        temp_mean = mean(colm)
-        temp_stddev = std(colm)
-        push!(mean_risks, temp_mean)
-        push!(risk_stddevs, temp_stddev)
-    end
-
-    stats_df.MeanRisks = mean_risks;
-    stats_df.Risk_stddevs = risk_stddevs;
-
-    rename!(centers_df, Symbol.(column_names))
+    # Adds a few columns with data about the lines to the dataframe
+    rename!(medoidsDF, Symbol.(column_names))
     for f in [:UID, :From_Bus, :To_Bus, :Tr_Ratio, :Length]
         col = data_with_extra_columns[!, f]
-        centers_df[!, f] = col
+        medoidsDF[!, f] = col
     end
 
     arr = data_with_extra_columns[!, :OID_]
-    insertcols!(centers_df, 1, :OID_ => arr)
+    insertcols!(medoidsDF, 1, :OID_ => arr)
 
-    mkpath("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j));
-    CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\centers" * string(j) * ".csv", centers_df);
-    CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\stats" * string(j) * ".csv", stats_df);
-    p1 = scatter(mean_dates_opt, mean_risks, label = "Mean Risk", title = "Mean Risk vs Mean Date", xticks =:all, xrotation = 45, legend =:outertopleft);
-    savefig("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\dates_vs_risk"*string(j)*".png");
+    # println(medoidsDF)
+
+    mkpath("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\K-Medoids Stats\\Cluster" * string(j));
+    CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\K-Medoids Stats\\Cluster" * string(j) * "\\medoids" * string(j) * ".csv", medoidsDF);
+    # CSV.write("C:\\Users\\lucas\\Documents\\Lucas-Franke---URS-2021-2022-main\\Risk_DataTables\\K-Medoids Stats\\Cluster" * string(j) * "\\stats" * string(j) * ".csv", stats_df);
+    # p1 = scatter(mean_dates_opt, mean_risks, label = "Mean Risk", title = "Mean Risk vs Mean Date", xticks =:all, xrotation = 45, legend =:outertopleft);
+    # savefig("C:\\Users\\lucas\\Documents\\Lucas-Franke---URS-2021-2022-main\\Risk_DataTables\\K-Medoids Stats\\Cluster" * string(j) * "\\dates_vs_risk"*string(j)*".png");
 end
+
 
 # average_risks1 = [];
 # average_risks2 = [];

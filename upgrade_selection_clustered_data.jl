@@ -20,7 +20,7 @@ using CSV, DataFrames, Plots
 using LinearAlgebra, Statistics, StatsBase
 
 print_upgraded_lines = true
-for p in 1:20
+for p in 1:2
     for j in 1:365
         upgrades_df = DataFrame();
         ##############################################################################################################
@@ -28,7 +28,7 @@ for p in 1:20
         # -----------------------
         # Read in Wildland Fire Potential Index risk values for the grid branches
         # TODO: Change this to clustered data
-        branch_risk = CSV.read("C:/Users/lucas/Documents/ArcGIS/Projects/LFranke_WISPO_Proj/Risk_DataTables/Clustering Stats/Cluster"*string(j)*"/centers"*string(j)*".csv", DataFrame)
+        branch_risk = CSV.read("C:/Users/lucas/Documents/ArcGIS/Projects/LFranke_WISPO_Proj/Risk_DataTables/K-Medoids Stats/Cluster"*string(j)*"/medoids"*string(j)*".csv", DataFrame)
 
         # Get number of scenarios from data
         n_scenarios = 0 
@@ -153,7 +153,7 @@ for p in 1:20
         end
         upgrades_df[!,:"Upgrades"] = upgrades;
         # mkpath("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j));
-        CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\Clustering Stats\\Cluster" * string(j) * "\\Upgrades"*string(j)*"Budget"*string(budget)*".csv", upgrades_df);
+        CSV.write("C:\\Users\\lucas\\Documents\\ArcGIS\\Projects\\LFranke_WISPO_Proj\\Risk_DataTables\\K-Medoids Stats\\Cluster" * string(j) * "\\Upgrades"*string(j)*"Budget"*string(budget)*".csv", upgrades_df);
     end
 end
 ##############################################################################################################
